@@ -1,0 +1,40 @@
+version: "3.8"
+services:
+  fontend:
+    container_name: "frontend"
+    image: "icclabcna/ccp2-k8s-todo-frontend"
+    ports:
+      - "8080:8080"
+    restart: on-failure
+    depends_on:
+      - api
+    deploy:
+      placement:
+        constraints:
+          - "node.hostname==master"
+      mode: replicated
+      replicas: 2
+  api:
+    container_name: api
+    image: "icclabcna/ccp2-k8s-todo-api:2020"
+    ports:
+      - "8081:8081"
+    depends_on:
+      - redis
+    restart: on-failure
+    deploy:
+      placement:
+        constraints:
+          - "node.hostname==worker-1"
+      mode: replicated
+      replicas: 2
+  redis:
+    container_name: "redis"
+    image: "redis:3.2.10-alpine"
+    ports:
+      - "6379:6379"
+    restart: on-failure
+    deploy:
+      placement:
+        constraints:
+          - "node.hostname==worker-2"
